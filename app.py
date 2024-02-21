@@ -13,6 +13,7 @@ username = os.environ.get("REDIS_USERNAME", "default")
 password = os.environ.get("REDIS_PASSWORD", "default")
 host = os.environ.get("REDIS_HOST", "127.0.0.1")
 redis_url = f"redis://{username}:{password}@{host}:6379"
+certificate_chain_file = os.environ.get("CERTIFICATE_CHAIN_FILE")
 
 inference_server_url=os.environ.get('INFERENCE_SERVER_URL',
   'https://llama-2-7b-chat-hf-fine-tuned-predictor-rhone-chatbot-demo.apps.rosa-zpp6h.zjoc.p1.openshiftapps.com/')
@@ -40,6 +41,7 @@ if __name__ == '__main__':
                     llm = caikit_tgis_langchain.CaikitLLM(
                         inference_server_url=inference_server_url,
                         model_id=model_id,
+                        certificate_chain=certificate_chain_file,
                         streaming=False
                     )
 

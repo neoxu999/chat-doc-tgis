@@ -13,3 +13,5 @@ python-certifi-win32==1.6.1
 pypdfium2==4.24.0
 redis==5.0.1
 snowflake-id==0.0.5
+caikit-nlp-client==0.0.8
+
