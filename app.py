@@ -2,7 +2,6 @@ import os
 
 import streamlit as st
 import utils.caikit_tgis_langchain as caikit_tgis_langchain
-from langchain.prompts import PromptTemplate
 
 from gui.history import ChatHistory
 from gui.layout import Layout

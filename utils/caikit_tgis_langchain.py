@@ -18,7 +18,7 @@ class CaikitLLM(LLM):
     ):
         super().__init__()
 
-        self.inference_server = inference_server_url
+        self.inference_server_url = inference_server_url
         self.model_id = model_id
 
         if certificate_chain:
