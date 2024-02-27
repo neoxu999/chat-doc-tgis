@@ -10,17 +10,18 @@ from langchain.schema.output import GenerationChunk
 
 class CaikitLLM(LLM):
     def __init__(
-        self,
-        inference_server_url: str,
-        model_id: str,
-        certificate_chain: Optional[str] = None,
-        streaming: bool = False,
-    ):
-        super().__init__()
+            self,
+            inference_server_url: str,
+            model_id: str,
+            certificate_chain: Optional[str] = None,
+            streaming: bool = False,
+            **kwargs: Any):
+        super().__init__(**kwargs)
 
-        self.inference_server_url = inference_server_url
-        self.model_id = model_id
-
+        self._lc_kwargs["inference_server_url"] = inference_server_url
+        self._lc_kwargs["model_id"] = model_id
+        self._lc_kwargs["certificate_chain"] = certificate_chain
+        self._lc_kwargs["streaming"] = streaming
         if certificate_chain:
             with open(certificate_chain, "rb") as fh:
                 chain = fh.read()
@@ -28,7 +29,7 @@ class CaikitLLM(LLM):
             chain = None
 
         if inference_server_url.startswith("http"):
-            client = HttpClient(inference_server_url, ca_cert_path=chain)
+            client = HttpClient(inference_server_url, ca_cert_path=chain, verify=False)
         else:
             try:
                 host, port = inference_server_url.split(":")
@@ -42,24 +43,24 @@ class CaikitLLM(LLM):
 
             client = GrpcClient(host, port, ca_cert=chain)
 
-        self.client: Union[HttpClient, GrpcClient] = client
+        self._lc_kwargs["client"]: Union[HttpClient, GrpcClient] = client
 
     @property
     def _llm_type(self) -> str:
         return "caikit_tgis"
 
     def _call(
-        self,
-        prompt: str,
-        preserve_input_text: bool = False,
-        max_new_tokens: int = 512,
-        min_new_tokens: int = 10,
-        device: str = "",
-        stop: Optional[List[str]] = None,
-        run_manager: Optional[CallbackManagerForLLMRun] = None,
-        **kwargs: Any,
+            self,
+            prompt: str,
+            preserve_input_text: bool = False,
+            max_new_tokens: int = 512,
+            min_new_tokens: int = 10,
+            device: str = "",
+            stop: Optional[List[str]] = None,
+            run_manager: Optional[CallbackManagerForLLMRun] = None,
+            **kwargs: Any,
     ) -> str:
-        if self.streaming:
+        if self._lc_kwargs["streaming"]:
             return "".join(
                 self._stream(
                     prompt=prompt,
@@ -78,8 +79,8 @@ class CaikitLLM(LLM):
         if device or stop:
             raise NotImplementedError()
 
-        return self.client.generate_text(
-            self.model_id,
+        return self._lc_kwargs["client"].generate_text(
+            self._lc_kwargs["model_id"],
             prompt,
             preserve_input_text=preserve_input_text,
             max_new_tokens=max_new_tokens,
@@ -87,25 +88,25 @@ class CaikitLLM(LLM):
         )
 
     def _stream(
-        self,
-        prompt: str,
-        preserve_input_text: bool = False,
-        max_new_tokens: int = 512,
-        min_new_tokens: int = 10,
-        device: str = "",
-        stop: Optional[List[str]] = None,
-        run_manager: Optional[CallbackManagerForLLMRun] = None,
-        **kwargs: Any,
+            self,
+            prompt: str,
+            preserve_input_text: bool = False,
+            max_new_tokens: int = 512,
+            min_new_tokens: int = 10,
+            device: str = "",
+            stop: Optional[List[str]] = None,
+            run_manager: Optional[CallbackManagerForLLMRun] = None,
+            **kwargs: Any,
     ) -> Iterator[GenerationChunk]:
         if device or stop:
             raise NotImplementedError
 
-        for token in self.client.generate_text_stream(
-            self.model_id,
-            prompt,
-            preserve_input_text=preserve_input_text,
-            max_new_tokens=max_new_tokens,
-            min_new_tokens=min_new_tokens,
+        for token in self._lc_kwargs["client"].generate_text_stream(
+                self._lc_kwargs["model_id"],
+                prompt,
+                preserve_input_text=preserve_input_text,
+                max_new_tokens=max_new_tokens,
+                min_new_tokens=min_new_tokens,
         ):
             chunk = GenerationChunk(text=token)
             yield chunk
@@ -116,4 +117,4 @@ class CaikitLLM(LLM):
     @property
     def _identifying_params(self) -> Mapping[str, Any]:
         """Get the identifying parameters."""
-        return {"inference_server_url": self.inference_server_url}
+        return {"inference_server_url": self._lc_kwargs["inference_server_url"]}
