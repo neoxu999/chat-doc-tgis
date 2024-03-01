@@ -11,11 +11,11 @@ username = os.environ.get("REDIS_USERNAME", "default")
 password = os.environ.get("REDIS_PASSWORD", "default")
 host = os.environ.get("REDIS_HOST", "127.0.0.1")
 redis_url = f"redis://{username}:{password}@{host}:6379"
-certificate_chain = os.environ.get("CERTIFICATE_CHAIN_FILE")
+certificate_chain = os.environ.get("CERTIFICATE_CHAIN_FILE", "/app/rag-ssl.pem")
 
 inference_server_url=os.environ.get('INFERENCE_SERVER_URL',
-  'https://model-llm.apps.rosa-br9s5.8u8m.p1.openshiftapps.com')
-model_id = os.environ.get("MODEL_ID", "llama-2-7b-chat-hf-fine-tuned")
+  'https://llm-modelserver-llm.apps.rosa-ltrwt.2rfo.p1.openshiftapps.com')
+model_id = os.environ.get("MODEL_ID", "Llama-2-7b-chat-hf-sharded-bf16-fine-tuned")
 
 if __name__ == '__main__':
     st.set_page_config(layout="wide", page_icon="💬", page_title="ChatPDF")

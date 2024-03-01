@@ -29,7 +29,7 @@ class CaikitLLM(LLM):
             chain = None
 
         if inference_server_url.startswith("http"):
-            client = HttpClient(inference_server_url, ca_cert_path=chain, verify=False)
+            client = HttpClient(inference_server_url, ca_cert_path=certificate_chain)
         else:
             try:
                 host, port = inference_server_url.split(":")
