@@ -14,6 +14,7 @@ class CaikitLLM(LLM):
             inference_server_url: str,
             model_id: str,
             certificate_chain: Optional[str] = None,
+            protocol: str = "http",
             streaming: bool = False,
             **kwargs: Any):
         super().__init__(**kwargs)
@@ -22,14 +23,17 @@ class CaikitLLM(LLM):
         self._lc_kwargs["model_id"] = model_id
         self._lc_kwargs["certificate_chain"] = certificate_chain
         self._lc_kwargs["streaming"] = streaming
-        if certificate_chain:
+        if certificate_chain and protocol == "https":
             with open(certificate_chain, "rb") as fh:
                 chain = fh.read()
         else:
             chain = None
 
         if inference_server_url.startswith("http"):
-            client = HttpClient(inference_server_url, ca_cert_path=certificate_chain)
+            if protocol == "http":
+                client = HttpClient(inference_server_url, verify=False)
+            else:
+                client = HttpClient(inference_server_url, ca_cert_path=certificate_chain)
         else:
             try:
                 host, port = inference_server_url.split(":")

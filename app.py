@@ -12,6 +12,7 @@ password = os.environ.get("REDIS_PASSWORD", "default")
 host = os.environ.get("REDIS_HOST", "127.0.0.1")
 redis_url = f"redis://{username}:{password}@{host}:6379"
 certificate_chain = os.environ.get("CERTIFICATE_CHAIN_FILE", "/app/rag-ssl.pem")
+protocol = os.environ.get("PROTOCOL", "http")
 
 inference_server_url=os.environ.get('INFERENCE_SERVER_URL',
   'https://llm-modelserver-llm.apps.rosa-ltrwt.2rfo.p1.openshiftapps.com')
